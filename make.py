@@ -46,23 +46,27 @@ def step_create_mint():
     )
     pxsol.log.debugln(f'main: create mint pubkey={mint}')
     info_save('pubkey_mint', mint.base58())
-    # with open('src/info.rs', 'w') as f:
-    #     f.write('pub const PUBKEY_MINT: [u8; 32] = [')
-    #     f.write('\n')
-    #     f.write('    ')
-    #     for i in range(0x00, 0x10):
-    #         f.write(f'0x{mint.p[i]:02x},')
-    #         if i != 0x0f:
-    #             f.write(' ')
-    #     f.write('\n')
-    #     f.write('    ')
-    #     for i in range(0x10, 0x20):
-    #         f.write(f'0x{mint.p[i]:02x},')
-    #         if i != 0x1f:
-    #             f.write(' ')
-    #     f.write('\n')
-    #     f.write('];')
-    #     f.write('\n')
+
+
+def step_infors():
+    pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
+    with open('src/info.rs', 'w') as f:
+        f.write('pub const PUBKEY_MINT: [u8; 32] = [')
+        f.write('\n')
+        f.write('    ')
+        for i in range(0x00, 0x10):
+            f.write(f'0x{pubkey_mint.p[i]:02x},')
+            if i != 0x0f:
+                f.write(' ')
+        f.write('\n')
+        f.write('    ')
+        for i in range(0x10, 0x20):
+            f.write(f'0x{pubkey_mint.p[i]:02x},')
+            if i != 0x1f:
+                f.write(' ')
+        f.write('\n')
+        f.write('];')
+        f.write('\n')
 
 
 def step_mint():
@@ -125,22 +129,12 @@ def step_call():
         pxsol.log.debugln(e)
 
 
-# step_create_mint()
-# step_mint()
-# step_deploy_mana()
-# step_create_pool()
-# step_call()
+def step_main():
+    step_create_mint()
+    step_mint()
+    step_deploy_mana()
+    step_create_pool()
+    step_call()
 
-step_update_mana()
-step_call()
 
-# user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
-# void = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-# pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
-# pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
-# pubkey_user = user.pubkey
-# pubkey_user_spla = user.spl_account(pubkey_mint)
-# void.pubkey = pubkey_mana
-# pubkey_mana_spla = void.spl_account(pubkey_mint)
-# print(pubkey_user_spla, pubkey_mana_spla)
-# print(pxsol.rpc.get_token_largest_accounts(pubkey_mint.base58(), {}))
+step_main()
