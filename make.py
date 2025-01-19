@@ -48,7 +48,7 @@ def step_create_mint():
     info_save('pubkey_mint', mint.base58())
 
 
-def step_infors():
+def step_create_info_rs():
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     with open('src/info.rs', 'w') as f:
         f.write('pub const PUBKEY_MINT: [u8; 32] = [')
