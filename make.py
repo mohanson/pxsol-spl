@@ -38,14 +38,14 @@ def info_load(k: str) -> str:
 def step_create_mint():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
     pxsol.log.debugln(f'main: create mint')
-    mint = user.spl_create(
+    pubkey_mint = user.spl_create(
         'Pxsol',
         'PXS',
         'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json',
         9,
     )
-    pxsol.log.debugln(f'main: create mint pubkey={mint}')
-    info_save('pubkey_mint', mint.base58())
+    pxsol.log.debugln(f'main: create mint pubkey={pubkey_mint}')
+    info_save('pubkey_mint', pubkey_mint.base58())
 
 
 def step_create_info_rs():
