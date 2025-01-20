@@ -37,7 +37,7 @@ pub fn process_instruction(
             9,
         )?,
         accounts,
-        &[],
+        &[&[&[0x00]]],
     )?;
 
     Ok(())

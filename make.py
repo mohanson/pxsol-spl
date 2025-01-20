@@ -100,15 +100,17 @@ def step_create_pool():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
-    user.spl_transfer(pubkey_mint, pubkey_mana, 10500000 * 10**9)
+    pubkey_mana_auth = pubkey_mana.derive_pda(bytearray([0x00]))
+    user.spl_transfer(pubkey_mint, pubkey_mana_auth, 10500000 * 10**9)
 
 
 def step_call():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
+    pubkey_mana_auth = pubkey_mana.derive_pda(bytearray([0x00]))
     void = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    void.pubkey = pubkey_mana
+    void.pubkey = pubkey_mana_auth
     pubkey_mana_spla = void.spl_account(pubkey_mint)
     rq = pxsol.core.Requisition(pubkey_mana, [], bytearray())
     rq.account.append(pxsol.core.AccountMeta(user.pubkey, 3))
@@ -138,4 +140,5 @@ def step_main():
     step_call()
 
 
-step_main()
+step_update_mana()
+step_call()
