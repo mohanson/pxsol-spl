@@ -25,20 +25,20 @@ pub fn process_instruction(
         accounts,
     )?;
 
-    // solana_program::program::invoke_signed(
-    //     &spl_token_2022::instruction::transfer_checked(
-    //         &account_spl.key,
-    //         &account_mana_spla.key,
-    //         &account_mint.key,
-    //         &account_user_spla.key,
-    //         &account_mana.key,
-    //         &[],
-    //         5000000000,
-    //         9,
-    //     )?,
-    //     accounts,
-    //     &[&[&[0x00]]],
-    // )?;
+    solana_program::program::invoke_signed(
+        &spl_token_2022::instruction::transfer_checked(
+            &account_spl.key,
+            &account_mana_spla.key,
+            &account_mint.key,
+            &account_user_spla.key,
+            &account_mana.key,
+            &[],
+            5000000000,
+            9,
+        )?,
+        accounts,
+        &[&[&[0x00]]],
+    )?;
 
     Ok(())
 }
