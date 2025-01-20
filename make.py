@@ -50,6 +50,7 @@ def step_create_mint():
 
 def step_create_info_rs():
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
+    pxsol.log.debugln(f'main: create info.rs')
     with open('src/info.rs', 'w') as f:
         f.write('pub const PUBKEY_MINT: [u8; 32] = [')
         f.write('\n')
