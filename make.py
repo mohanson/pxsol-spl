@@ -116,6 +116,7 @@ def step_call():
     rq.account.append(pxsol.core.AccountMeta(user.pubkey, 3))
     rq.account.append(pxsol.core.AccountMeta(user.spl_account(pubkey_mint), 1))
     rq.account.append(pxsol.core.AccountMeta(pubkey_mana, 0))
+    rq.account.append(pxsol.core.AccountMeta(pubkey_mana_auth, 0))
     rq.account.append(pxsol.core.AccountMeta(pubkey_mana_spla, 1))
     rq.account.append(pxsol.core.AccountMeta(pubkey_mint, 0))
     rq.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))

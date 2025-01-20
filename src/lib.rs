@@ -8,7 +8,8 @@ pub fn process_instruction(
     let accounts_iter = &mut accounts.iter();
     let account_user = solana_program::account_info::next_account_info(accounts_iter)?;
     let account_user_spla = solana_program::account_info::next_account_info(accounts_iter)?;
-    let account_mana = solana_program::account_info::next_account_info(accounts_iter)?;
+    let _ = solana_program::account_info::next_account_info(accounts_iter)?;
+    let account_mana_auth = solana_program::account_info::next_account_info(accounts_iter)?;
     let account_mana_spla = solana_program::account_info::next_account_info(accounts_iter)?;
     let account_mint = solana_program::account_info::next_account_info(accounts_iter)?;
     let _ = solana_program::account_info::next_account_info(accounts_iter)?;
@@ -31,7 +32,7 @@ pub fn process_instruction(
             &account_mana_spla.key,
             &account_mint.key,
             &account_user_spla.key,
-            &account_mana.key,
+            &account_mana_auth.key,
             &[],
             5000000000,
             9,
