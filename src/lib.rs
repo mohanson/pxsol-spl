@@ -8,7 +8,7 @@ pub fn process_instruction(
     let accounts_iter = &mut accounts.iter();
     let account_user = solana_program::account_info::next_account_info(accounts_iter)?;
     let account_user_spla = solana_program::account_info::next_account_info(accounts_iter)?;
-    let _ = solana_program::account_info::next_account_info(accounts_iter)?;
+    let account_mana = solana_program::account_info::next_account_info(accounts_iter)?;
     let account_mana_auth = solana_program::account_info::next_account_info(accounts_iter)?;
     let account_mana_spla = solana_program::account_info::next_account_info(accounts_iter)?;
     let account_mint = solana_program::account_info::next_account_info(accounts_iter)?;
@@ -25,7 +25,7 @@ pub fn process_instruction(
         ),
         accounts,
     )?;
-
+    let account_bump = solana_program::pubkey::Pubkey::find_program_address(&[&[0x00]], account_mana.key).1;
     solana_program::program::invoke_signed(
         &spl_token_2022::instruction::transfer_checked(
             &account_spl.key,
@@ -38,7 +38,7 @@ pub fn process_instruction(
             9,
         )?,
         accounts,
-        &[&[&[0x00]]],
+        &[&[&[0x00], &[account_bump]]],
     )?;
 
     Ok(())

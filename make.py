@@ -2,6 +2,7 @@ import argparse
 import base64
 import json
 import pxsol
+import random
 import subprocess
 
 parser = argparse.ArgumentParser()
@@ -106,6 +107,15 @@ def step_create_pool():
 
 def step_call():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
+    if args.net == 'develop':
+        pxsol.log.debugln(f'main: random user')
+        user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(random.randbytes(32))))
+        pxsol.log.debugln(f'main: random user pubkey={user.pubkey}')
+        pxsol.log.debugln(f'main: request airdrop')
+        txid = pxsol.rpc.request_airdrop(user.pubkey.base58(), 1 * pxsol.denomination.sol, {})
+        pxsol.log.debugln(f'main: request airdrop txid={txid}')
+        pxsol.rpc.wait([txid])
+        pxsol.log.debugln(f'main: request airdrop done')
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
     pubkey_mana_auth = pubkey_mana.derive_pda(bytearray([0x00]))
@@ -141,5 +151,4 @@ def step_main():
     step_call()
 
 
-step_update_mana()
-step_call()
+step_main()
