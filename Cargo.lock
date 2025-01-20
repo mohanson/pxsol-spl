@@ -1285,8 +1285,6 @@ dependencies = [
 name = "pxsol-spl"
 version = "0.1.0"
 dependencies = [
- "borsh 0.10.4",
- "borsh-derive 0.9.3",
  "solana-program",
  "spl-associated-token-account",
  "spl-token-2022 0.7.0",
