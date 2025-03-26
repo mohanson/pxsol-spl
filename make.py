@@ -49,28 +49,6 @@ def step_create_mint():
     info_save('pubkey_mint', pubkey_mint.base58())
 
 
-def step_create_info_rs():
-    pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
-    pxsol.log.debugln(f'main: create info.rs')
-    with open('src/info.rs', 'w') as f:
-        f.write('pub const PUBKEY_MINT: [u8; 32] = [')
-        f.write('\n')
-        f.write('    ')
-        for i in range(0x00, 0x10):
-            f.write(f'0x{pubkey_mint.p[i]:02x},')
-            if i != 0x0f:
-                f.write(' ')
-        f.write('\n')
-        f.write('    ')
-        for i in range(0x10, 0x20):
-            f.write(f'0x{pubkey_mint.p[i]:02x},')
-            if i != 0x1f:
-                f.write(' ')
-        f.write('\n')
-        f.write('];')
-        f.write('\n')
-
-
 def step_mint():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
@@ -111,11 +89,11 @@ def step_call():
         pxsol.log.debugln(f'main: random user')
         user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(random.randbytes(32))))
         pxsol.log.debugln(f'main: random user pubkey={user.pubkey}')
-        pxsol.log.debugln(f'main: request airdrop')
+        pxsol.log.debugln(f'main: request sol airdrop')
         txid = pxsol.rpc.request_airdrop(user.pubkey.base58(), 1 * pxsol.denomination.sol, {})
-        pxsol.log.debugln(f'main: request airdrop txid={txid}')
+        pxsol.log.debugln(f'main: request sol airdrop txid={txid}')
         pxsol.rpc.wait([txid])
-        pxsol.log.debugln(f'main: request airdrop done')
+        pxsol.log.debugln(f'main: request sol airdrop done')
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
     pubkey_mana_auth = pubkey_mana.derive_pda(bytearray([0x00]))
@@ -136,11 +114,14 @@ def step_call():
     tx = pxsol.core.Transaction.requisition_decode(user.pubkey, [rq])
     tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
     tx.sign([user.prikey])
+    pxsol.log.debugln(f'main: request spl airdrop')
     txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
     pxsol.rpc.wait([txid])
     tlog = pxsol.rpc.get_transaction(txid, {})
     for e in tlog['meta']['logMessages']:
         pxsol.log.debugln(e)
+    splcnt = user.spl_balance(pubkey_mint)
+    pxsol.log.debugln(f'main: request spl airdrop done recv={splcnt[0] / 10**splcnt[1]}')
 
 
 def step_main():
