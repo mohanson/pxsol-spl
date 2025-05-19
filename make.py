@@ -7,6 +7,8 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--net', type=str, choices=['develop', 'mainnet', 'testnet'], default='develop')
+parser.add_argument('--prikey', type=str, default='11111111111111111111111111111112')
+parser.add_argument('args', nargs='+')
 args = parser.parse_args()
 
 if args.net == 'develop':
@@ -36,8 +38,9 @@ def info_load(k: str) -> str:
     return info[k]
 
 
-def step_create_mint():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
+def deploy():
+    # Create spl mint
+    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(args.prikey))
     pxsol.log.debugln(f'main: create mint')
     pubkey_mint = user.spl_create(
         'Pxsol',
@@ -48,26 +51,28 @@ def step_create_mint():
     pxsol.log.debugln(f'main: create mint pubkey={pubkey_mint}')
     info_save('pubkey_mint', pubkey_mint.base58())
 
-
-def step_mint():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
-    pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
+    # Mint spl tokens
     pxsol.log.debugln(f'main: mint 21000000 for {user.pubkey}')
     user.spl_mint(pubkey_mint, user.pubkey, 21000000 * 10**9)
 
-
-def step_deploy_mana():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
+    # Deploy spl mana
     call('cargo build-sbf -- -Znext-lockfile-bump')
     pxsol.log.debugln(f'main: deploy mana')
     with open('target/deploy/pxsol_spl.so', 'rb') as f:
-        pubkey_mana = user.program_deploy(f.read())
+        data = bytearray(f.read())
+    pubkey_mana = user.program_deploy(data)
     pxsol.log.debugln(f'main: deploy mana pubkey={pubkey_mana}')
     info_save('pubkey_mana', pubkey_mana.base58())
 
+    # Send spl tokens
+    pubkey_mana_seed = bytearray([0x42])
+    pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)
+    user.spl_transfer(pubkey_mint, pubkey_mana_auth, 20000000 * 10**9)
 
-def step_update_mana():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
+
+def update():
+    # Update spl mana
+    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(args.prikey))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
     call('cargo build-sbf -- -Znext-lockfile-bump')
     pxsol.log.debugln(f'main: update mana')
@@ -75,28 +80,24 @@ def step_update_mana():
         user.program_update(pubkey_mana, f.read())
 
 
-def step_create_pool():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
-    pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
-    pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
-    pubkey_mana_auth = pubkey_mana.derive_pda(bytearray([0x00]))
-    user.spl_transfer(pubkey_mint, pubkey_mana_auth, 10500000 * 10**9)
+def genuser():
+    pxsol.log.debugln(f'main: random user')
+    user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(random.randbytes(32))))
+    pxsol.log.debugln(f'main: random user prikey={user.prikey}')
+    pxsol.log.debugln(f'main: random user pubkey={user.pubkey}')
+    pxsol.log.debugln(f'main: request sol airdrop')
+    txid = pxsol.rpc.request_airdrop(user.pubkey.base58(), 1 * pxsol.denomination.sol, {})
+    pxsol.log.debugln(f'main: request sol airdrop txid={txid}')
+    pxsol.rpc.wait([txid])
+    pxsol.log.debugln(f'main: request sol airdrop done')
 
 
-def step_call():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(info_load('prikey')))
-    if args.net == 'develop':
-        pxsol.log.debugln(f'main: random user')
-        user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(random.randbytes(32))))
-        pxsol.log.debugln(f'main: random user pubkey={user.pubkey}')
-        pxsol.log.debugln(f'main: request sol airdrop')
-        txid = pxsol.rpc.request_airdrop(user.pubkey.base58(), 1 * pxsol.denomination.sol, {})
-        pxsol.log.debugln(f'main: request sol airdrop txid={txid}')
-        pxsol.rpc.wait([txid])
-        pxsol.log.debugln(f'main: request sol airdrop done')
+def airdrop():
+    user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(args.prikey))
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
-    pubkey_mana_auth = pubkey_mana.derive_pda(bytearray([0x00]))
+    pubkey_mana_seed = bytearray([0x42])
+    pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)
     void = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     void.pubkey = pubkey_mana_auth
     pubkey_mana_spla = void.spl_account(pubkey_mint)
@@ -124,12 +125,5 @@ def step_call():
     pxsol.log.debugln(f'main: request spl airdrop done recv={splcnt[0] / 10**splcnt[1]}')
 
 
-def step_main():
-    step_create_mint()
-    step_mint()
-    step_deploy_mana()
-    step_create_pool()
-    step_call()
-
-
-step_main()
+if __name__ == '__main__':
+    eval(f'{args.args[0]}()')

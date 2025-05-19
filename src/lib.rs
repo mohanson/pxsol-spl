@@ -25,7 +25,8 @@ pub fn process_instruction(
         ),
         accounts,
     )?;
-    let account_bump = solana_program::pubkey::Pubkey::find_program_address(&[&[0x00]], account_mana.key).1;
+    let account_seed = &[0x42];
+    let account_bump = solana_program::pubkey::Pubkey::find_program_address(&[account_seed], account_mana.key).1;
     solana_program::program::invoke_signed(
         &spl_token_2022::instruction::transfer_checked(
             &account_spl.key,
@@ -38,7 +39,7 @@ pub fn process_instruction(
             9,
         )?,
         accounts,
-        &[&[&[0x00], &[account_bump]]],
+        &[&[account_seed, &[account_bump]]],
     )?;
 
     Ok(())

@@ -8,13 +8,18 @@ This repository provides a simple example of how to create an airdrop program fo
 Deployed on the local test chain:
 
 ```sh
-$ python make.py
+$ python make.py deploy
+# 2025/05/19 11:42:11 main: deploy mana pubkey="344HRAgWWiLuhUWTm9YNKWfhV5fWK26vx45vMxA9HyCE"
 ```
 
-If you want to deploy on the mainnet, please modify the private key in `res/info.json` and run
+Get airdrop:
 
 ```sh
-python make.py --net mainnet
+$ python make.py genuser
+# 2025/05/19 11:45:11 main: random user prikey="Dk5y9WDhMiX83VDPTfojkWgXt6KuBAYhQEgVRAKYGLYG"
+
+$ python make.py --prikey Dk5y9WDhMiX83VDPTfojkWgXt6KuBAYhQEgVRAKYGLYG airdrop
+# 2025/05/19 11:45:24 main: request spl airdrop done recv=5.0
 ```
 
 # License
