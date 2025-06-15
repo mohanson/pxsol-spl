@@ -77,7 +77,7 @@ def update():
     call('cargo build-sbf -- -Znext-lockfile-bump')
     pxsol.log.debugln(f'main: update mana')
     with open('target/deploy/pxsol_spl.so', 'rb') as f:
-        user.program_update(pubkey_mana, f.read())
+        user.program_update(pubkey_mana, bytearray(f.read()))
 
 
 def genuser():
