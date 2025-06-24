@@ -43,7 +43,7 @@ def deploy():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(args.prikey))
     pxsol.log.debugln(f'main: create mint')
     pubkey_mint = user.spl_create(
-        'Pxsol',
+        'PXSOL',
         'PXS',
         'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json',
         9,
