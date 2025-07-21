@@ -27,7 +27,7 @@ pub fn process_instruction(
         ),
         accounts,
     )?;
-    let account_seed = &[0x42];
+    let account_seed = &[];
     let account_bump = solana_program::pubkey::Pubkey::find_program_address(&[account_seed], account_mana.key).1;
     solana_program::program::invoke_signed(
         &spl_token_2022::instruction::transfer_checked(
