@@ -98,9 +98,7 @@ def airdrop():
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
     pubkey_mana_seed = bytearray([])
     pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)
-    void = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    void.pubkey = pubkey_mana_auth
-    pubkey_mana_spla = void.spl_account(pubkey_mint)
+    pubkey_mana_spla = pxsol.wallet.Wallet.view_only(pubkey_mana_auth).spl_account(pubkey_mint)
     rq = pxsol.core.Requisition(pubkey_mana, [], bytearray())
     rq.account.append(pxsol.core.AccountMeta(user.pubkey, 3))
     rq.account.append(pxsol.core.AccountMeta(user.spl_account(pubkey_mint), 1))
