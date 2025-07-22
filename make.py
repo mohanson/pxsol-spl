@@ -27,7 +27,7 @@ def call(c: str):
 def info_save(k: str, v: str) -> None:
     with open('res/info.json', 'r') as f:
         info = json.load(f)
-    info[k] = v
+    info[args.net][k] = v
     with open('res/info.json', 'w') as f:
         json.dump(info, f, indent=4)
 
@@ -35,7 +35,7 @@ def info_save(k: str, v: str) -> None:
 def info_load(k: str) -> str:
     with open('res/info.json', 'r') as f:
         info = json.load(f)
-    return info[k]
+    return info[args.net][k]
 
 
 def deploy():
@@ -52,8 +52,8 @@ def deploy():
     info_save('pubkey_mint', pubkey_mint.base58())
 
     # Mint spl tokens
-    pxsol.log.debugln(f'main: mint 21000000 for {user.pubkey}')
-    user.spl_mint(pubkey_mint, user.pubkey, 21000000 * 10**9)
+    pxsol.log.debugln(f'main: mint 100000000 for {user.pubkey}')
+    user.spl_mint(pubkey_mint, user.pubkey, 100000000 * 10**9)
 
     # Deploy spl mana
     call('cargo build-sbf -- -Znext-lockfile-bump')
@@ -65,9 +65,9 @@ def deploy():
     info_save('pubkey_mana', pubkey_mana.base58())
 
     # Send spl tokens
-    pubkey_mana_seed = bytearray([0x42])
+    pubkey_mana_seed = bytearray([])
     pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)
-    user.spl_transfer(pubkey_mint, pubkey_mana_auth, 20000000 * 10**9)
+    user.spl_transfer(pubkey_mint, pubkey_mana_auth, 100000000 * 10**9)
 
 
 def update():
@@ -96,7 +96,7 @@ def airdrop():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(args.prikey))
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
-    pubkey_mana_seed = bytearray([0x42])
+    pubkey_mana_seed = bytearray([])
     pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)
     void = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     void.pubkey = pubkey_mana_auth
