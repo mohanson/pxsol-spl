@@ -42,12 +42,13 @@ def deploy():
     # Create spl mint
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.base58_decode(args.prikey))
     pxsol.log.debugln(f'main: create mint')
-    pubkey_mint = user.spl_create(
-        'PXSOL',
-        'PXS',
-        'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json',
-        9,
-    )
+    pubkey_mint = user.spl_create(9, {
+        'metadata': {
+            'name': 'PXSOL',
+            'symbol': 'PXS',
+            'uri': 'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json',
+        }
+    })
     pxsol.log.debugln(f'main: create mint pubkey={pubkey_mint}')
     info_save('pubkey_mint', pubkey_mint.base58())
 
@@ -66,7 +67,7 @@ def deploy():
 
     # Send spl tokens
     pubkey_mana_seed = bytearray([])
-    pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)
+    pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)[0]
     user.spl_transfer(pubkey_mint, pubkey_mana_auth, 100000000 * 10**9)
 
 
@@ -97,7 +98,7 @@ def airdrop():
     pubkey_mint = pxsol.core.PubKey.base58_decode(info_load('pubkey_mint'))
     pubkey_mana = pxsol.core.PubKey.base58_decode(info_load('pubkey_mana'))
     pubkey_mana_seed = bytearray([])
-    pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)
+    pubkey_mana_auth = pubkey_mana.derive_pda(pubkey_mana_seed)[0]
     pubkey_mana_spla = pxsol.wallet.Wallet.view_only(pubkey_mana_auth).spl_account(pubkey_mint)
     rq = pxsol.core.Requisition(pubkey_mana, [], bytearray())
     rq.account.append(pxsol.core.AccountMeta(user.pubkey, 3))
