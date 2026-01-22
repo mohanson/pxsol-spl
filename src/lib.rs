@@ -33,6 +33,7 @@ pub fn process_instruction(
         &spl_token_2022::id(),
     );
     assert_eq!(account_mana_spla.key, &account_mana_spla_calc);
+    assert_eq!(account_spl.key, &spl_token_2022::id());
 
     solana_program::program::invoke(
         &spl_associated_token_account::instruction::create_associated_token_account_idempotent(
